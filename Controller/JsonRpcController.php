@@ -45,7 +45,7 @@ use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 class JsonRpcController implements ContainerAwareInterface
 {
     use ContainerAwareTrait;
-    
+
     const PARSE_ERROR = -32700;
     const INVALID_REQUEST = -32600;
     const METHOD_NOT_FOUND = -32601;
@@ -161,6 +161,15 @@ class JsonRpcController implements ContainerAwareInterface
                     $class = $rps[$index]->getClass()->getName();
                     $param = json_encode($param);
                     $params[$index] = $this->container->get('jms_serializer')->deserialize($param, $class, 'json');
+                }
+            }
+
+            foreach($params as $index => $param) {
+                $rp = $rps[$index];
+                if(gettype($param) != ((string)$rp->getType())) {
+                    return $this->getErrorResponse(self::INVALID_PARAMS, $requestId,
+                        sprintf('Parameter #%d type mismatch. Expected: "%s"  Get: "%s"', $index, $rp->getType(), gettype($param))
+                    );
                 }
             }
 
@@ -316,7 +325,7 @@ class JsonRpcController implements ContainerAwareInterface
 
         return $serializationContext;
     }
-    
+
     /**
      * Finds whether a variable is an associative array
      *
