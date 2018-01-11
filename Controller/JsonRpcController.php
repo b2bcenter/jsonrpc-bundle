@@ -166,7 +166,7 @@ class JsonRpcController implements ContainerAwareInterface
 
             foreach($params as $index => $param) {
                 $rp = $rps[$index];
-                if(gettype($param) != ((string)$rp->getType())) {
+                if($this->getType($param) !== ((string)$rp->getType())) {
                     return $this->getErrorResponse(self::INVALID_PARAMS, $requestId,
                         sprintf('Parameter #%d type mismatch. Expected: "%s"  Get: "%s"', $index, $rp->getType(), gettype($param))
                     );
@@ -199,6 +199,24 @@ class JsonRpcController implements ContainerAwareInterface
         } else {
             return $this->getErrorResponse(self::METHOD_NOT_FOUND, $requestId);
         }
+    }
+
+    /**
+     * @param $param
+     * @return string
+     */
+    private function getType($param): string
+    {
+        $type = gettype($param);
+
+        switch ($type) {
+            case 'integer':
+                $type = 'int';
+                break;
+            default: break;
+        }
+
+        return $type;
     }
 
     /**
