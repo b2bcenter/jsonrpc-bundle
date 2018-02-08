@@ -173,15 +173,7 @@ class JsonRpcController implements ContainerAwareInterface
                 }
             }
 
-            try {
-                $result = call_user_func_array(array($service, $method), $params);
-            } catch (\Exception $e) {
-				if (getenv('APP_ENV') === 'dev') {
-					return $this->getErrorResponse(self::INTERNAL_ERROR, $requestId, $this->convertExceptionToErrorData($e));
-				} else {
-					return $this->getErrorResponse(self::INTERNAL_ERROR, $requestId);
-				}
-            }
+			$result = call_user_func_array(array($service, $method), $params);
 
             $response = array('jsonrpc' => '2.0');
             $response['result'] = $result;
